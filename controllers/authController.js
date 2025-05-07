@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 
 exports.sendOTP = async (req, res) => {
   const { email } = req.body;
-
+// Validate email format
+    //
   try {
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // Expires in 10 mins
