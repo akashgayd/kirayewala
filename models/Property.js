@@ -11,7 +11,17 @@ const propertySchema = new mongoose.Schema({
     lng: { type: Number },
   },
   images: [{ type: String }],
-  type: { type: String, enum: ['room', 'flat', 'house', 'shared'], required: true },
+  type: { 
+    type: String, 
+    enum: ['room', 'apartment', 'house', 'villa', 'studio', 'shared'], 
+    required: true 
+  },
+  amenities: {
+    wifi: { type: Boolean, default: false },
+    parking: { type: Boolean, default: false },
+    ac: { type: Boolean, default: false },
+    // Add more as needed
+  },
   provider: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   views: { type: Number, default: 0 },
   favoritesCount: { type: Number, default: 0 },
