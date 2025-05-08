@@ -4,20 +4,25 @@ const { sendOTPEmail } = require('../utils/emailSender');
 const jwt = require('jsonwebtoken');
 
 exports.sendOTP = async (req, res) => {
-  const { email } = req.body;
-// Validate email format
-    //
+  const { email, role = 'user', name = '' } = req.body;
+
   try {
     const otp = generateOTP();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // Expires in 10 mins
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = new User({ email, otp, otpExpires });
+      // Create new user with role and name
+      user = new User({ email, otp, otpExpires, role, name });
     } else {
+      // Update OTP fields only for existing user
       user.otp = otp;
       user.otpExpires = otpExpires;
+
+      // Optionally: update name/role if changed
+      if (!user.role && role) user.role = role;
+      if (!user.name && name) user.name = name;
     }
 
     await user.save();
@@ -28,7 +33,6 @@ exports.sendOTP = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 exports.verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
 
