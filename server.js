@@ -12,7 +12,8 @@ const providerRoutes = require('./routes/providerRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const configureSocket = require('./socket/socket');
-
+//////////adhjsdjasdja//////////////
+// const { Server } = require('socket.io');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
