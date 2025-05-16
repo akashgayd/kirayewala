@@ -13,13 +13,13 @@ const propertySchema = new mongoose.Schema({
   images: [{ type: String }],
   type: { 
     type: String, 
-    enum: ['room', 'apartment', 'house', 'villa', 'studio', 'shared'], 
+    enum: ['room', 'apartment', 'house', 'villa', 'studio', 'shared','bike', 'car','other'], 
     required: true 
   },
   amenities: {
-    wifi: { type: Boolean, default: false },
-    parking: { type: Boolean, default: false },
-    ac: { type: Boolean, default: false },
+    wifi: { type: Boolean  },
+    parking: { type: Boolean },
+    ac: { type: Boolean },
     // Add more as needed
   },
   provider: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

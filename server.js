@@ -11,7 +11,7 @@ const userRoutes = require('./routes/userRoutes');
 const providerRoutes = require('./routes/providerRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const errorHandler = require('./middleware/errorHandler');
-const configureSocket = require('./socket/socket');
+const { initializeSocket } = require('./socket/socket');
 //////////adhjsdjasdja//////////////
 // const { Server } = require('socket.io');
 
@@ -49,7 +49,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Socket.IO setup
-const io = configureSocket(server);
+const io = initializeSocket(server);
 app.set('io', io);
 
 // new add

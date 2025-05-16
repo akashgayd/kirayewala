@@ -1,45 +1,66 @@
-const socketio = require('socket.io');
+// socketServer.js
+const socketIO = require('socket.io');
 const Message = require('../models/Message');
+const mongoose = require('mongoose');
 
-const configureSocket = (server) => {
-  const io = socketio(server, {
+let io;
+
+const initializeSocket = (server) => {
+  io = socketIO(server, {
     cors: {
-      origin: "*",
+      origin: process.env.CLIENT_URL || "http://localhost:3000",
       methods: ["GET", "POST"],
-    },
+      credentials: true
+    }
   });
 
+  // Socket connection handling
   io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
-    
-    // Join user's room
+    console.log(`User connected: ${socket.id}`);
+
+    // Handle user joining with their userId
     socket.on('join', (userId) => {
-      socket.join(userId);
-      socket.userId = userId;
+      if (userId) {
+        socket.join(userId);
+        console.log(`User ${userId} joined their room`);
+      }
     });
-    
-    // Handle messages
-    socket.on('send-message', async ({ to, message }) => {
-      const newMessage = new Message({
-        from: socket.userId,
-        to,
-        message,
-      });
-      
-      await newMessage.save();
-      
-      io.to(to).emit('receive-message', {
-        from: socket.userId,
-        message,
-      });
+
+    // Handle sending messages
+    socket.on('send-message', async (data) => {
+      try {
+        const { to, message } = data;
+        
+        if (to) {
+          // Emit to recipient's room
+          io.to(to).emit('receive-message', message);
+          console.log(`Message sent to user ${to}`);
+        }
+      } catch (error) {
+        console.error('Error handling message:', error);
+      }
     });
-    
+
+    // Handle disconnect
     socket.on('disconnect', () => {
-      console.log('Client disconnected');
+      console.log(`User disconnected: ${socket.id}`);
     });
   });
+
+  // Set up message expiration check
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      await Message.deleteMany({ expiresAt: { $lt: now } });
+    } catch (error) {
+      console.error('Error cleaning expired messages:', error);
+    }
+  }, 60000); // Check every minute
 
   return io;
 };
 
-module.exports = configureSocket;
+// Get socket instance
+const getIO = () => io;
+
+module.exports = { initializeSocket, getIO };

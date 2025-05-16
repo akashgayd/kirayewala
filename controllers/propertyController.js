@@ -1,9 +1,15 @@
 const Property = require('../models/Property');
 
+
+const mutler = require('multer');
+const upload = mutler({ dest: 'uploads/' });
+
+
 exports.createProperty = async (req, res) => {
   try {
     const { title, description, price, city, address, lat, lng, type } = req.body;
     const images = req.files.map(file => file.path);
+
     
     const property = new Property({
       title,
@@ -13,6 +19,11 @@ exports.createProperty = async (req, res) => {
       images,
       type,
       provider: req.user.id,
+      amenities: {
+        wifi: false,
+        parking: false,
+        ac: false,
+      },
     });
     
     await property.save();

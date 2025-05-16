@@ -31,14 +31,33 @@ module.exports = {
     }
   },
 
-  toggleFavorite: async (req, res) => {
-    try {
-      // Your existing favorite toggle implementation
-      res.status(200).json({ success: true });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+toggleFavorite: async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const propertyId = req.params.id;
+
+    const index = user.favorites.indexOf(propertyId);
+    let action;
+
+    if (index === -1) {
+      user.favorites.push(propertyId);
+      action = 'added';
+    } else {
+      user.favorites.splice(index, 1);
+      action = 'removed';
     }
-  },
+
+    await user.save();
+
+    const property = await Property.findById(propertyId);
+    const favoritesCount = await User.countDocuments({ favorites: propertyId });
+
+    res.status(200).json({ success: true, action, favoritesCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+},
+
 
   getFavorites: async (req, res) => {
     try {
